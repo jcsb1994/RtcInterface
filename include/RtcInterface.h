@@ -44,8 +44,9 @@ public:
 
   void setHourValue(uint8_t hour);
   void setMinuteValue(uint8_t minute);
-    uint8_t getHour();
+  uint8_t getHour();
   uint8_t getMinutes();
+  uint32_t getAbsTime();
 
 private:
   RTC_DS1307 _rtc;

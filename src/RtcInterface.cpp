@@ -2,14 +2,13 @@
 
 int8_t RtcInterface::init()
 {
-  if (&_rtc == NULL)
-    return -1;
-  else
-  {
-    _rtc.begin(); // initiates i2c comm to adr 0x68 (adr of DS1307)
-    _rtc.adjust(DateTime(__DATE__, __TIME__));
-    return 0;
-  }
+  _rtc.begin(); // initiates i2c comm, then sends to adr 0x68 (adr of DS1307)
+  _rtc.adjust(DateTime(__DATE__, __TIME__));
+  return 0;
+}
+
+uint32_t RtcInterface::getAbsTime() {
+  return _rtc.now().secondstime();
 }
 
 uint8_t RtcInterface::getHour()
