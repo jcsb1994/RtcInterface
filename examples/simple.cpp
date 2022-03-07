@@ -1,23 +1,14 @@
 #include <Arduino.h>
-#include "ArrayCircularBuffer.h"
+#include "RtcInterface.h"
 
-ArrayCircularBuffer eventBuffer;
-
-void eventCallback(int event) {
-  eventBuffer.write(event);
-}
+RtcInterface myClock;
 
 void setup() {
   Serial.begin(9600);
   Serial.println("hello");
-    eventBuffer.write(1);
-    eventBuffer.write(2);
-    eventBuffer.write(3);
+  myClock.init();
 }
 
 void loop() { 
-  if(!eventBuffer.isEmpty()) {
-    Serial.print(eventBuffer.read());
-    Serial.println(" was stored");
-  }
+  Serial.println(myClock.getSeconds());
 }

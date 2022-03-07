@@ -27,10 +27,14 @@
 #include "Arduino.h"
 #include <RTClib.h>
 
+#define USING_DS3231_RTC 1
+#define USING_DS1307_RTC 0
+
+
 class RtcInterface
 {
 public:
-  RtcInterface()  {}
+  RtcInterface(int sqwPin = -1) :  _sqwPin(sqwPin) {}
   ~RtcInterface() {}
 
 /***************************************************************************/
@@ -38,7 +42,7 @@ public:
     @brief  Initialize the RTC
     @param  none
     @return -1 if failed, 0 if succeeded
-  */
+*/
 /***************************************************************************/
   int8_t init();
 
@@ -46,10 +50,33 @@ public:
   void setMinuteValue(uint8_t minute);
   uint8_t getHour();
   uint8_t getMinutes();
-  uint32_t getAbsTime();
+  uint8_t getSeconds();
+  uint16_t getMillis() { return (millis() - _millisReference); }
+
+  void initMillisCounter(void (&isr)()) {
+    _rtc.writeSqwPinMode(DS3231_SquareWave1Hz);
+    pinMode(_sqwPin, INPUT_PULLUP);
+    attachInterrupt(_sqwPin, isr, FALLING);
+  }
+
+  void updateMillisReference() { _millisReference = millis(); }
+
+  uint32_t getUnixTime();
+
+protected:
+
+#if USING_DS3231_RTC
+  RTC_DS3231 _rtc;
+#endif
+
+#if USING_DS1307_RTC
+  RTC_DS1307 _rtc;
+#endif
+
+int _sqwPin = -1; 
 
 private:
-  RTC_DS1307 _rtc;
+  uint16_t _millisReference = 0;
 };
 
 #endif  // RTC_INTERFACE_H
