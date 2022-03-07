@@ -30,6 +30,12 @@
 #define USING_DS3231_RTC 1
 #define USING_DS1307_RTC 0
 
+struct PreciseTimeStamp {
+  uint32_t unix;
+  int milliseconds;
+  PreciseTimeStamp(uint32_t unixTime = 0, int milliSeconds = 0) 
+  : unix(unixTime), milliseconds(milliSeconds)   {}
+};
 
 class RtcInterface
 {
@@ -51,7 +57,7 @@ public:
   uint8_t getHour();
   uint8_t getMinutes();
   uint8_t getSeconds();
-  uint16_t getMillis() { return (millis() - _millisReference); }
+  int getMillis() { return (millis() - _millisReference); }
 
   void initMillisCounter(void (&isr)()) {
     _rtc.writeSqwPinMode(DS3231_SquareWave1Hz);
@@ -62,6 +68,8 @@ public:
   void updateMillisReference() { _millisReference = millis(); }
 
   uint32_t getUnixTime();
+
+  PreciseTimeStamp getPreciseTime() { PreciseTimeStamp rc = PreciseTimeStamp( getUnixTime(), getMillis()); return rc;  }
 
 protected:
 
@@ -76,7 +84,7 @@ protected:
 int _sqwPin = -1; 
 
 private:
-  uint16_t _millisReference = 0;
+  int _millisReference = 0;
 };
 
 #endif  // RTC_INTERFACE_H
