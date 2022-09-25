@@ -52,24 +52,23 @@ public:
 /***************************************************************************/
   int8_t init();
 
+  void initMillisCounter(void (&isr)());
+  void updateMillisReference() { _millisReference = millis(); }
+  
   void setHourValue(uint8_t hour);
   void setMinuteValue(uint8_t minute);
+  void setUnix(uint32_t unix);
+  void setTimezone(int8_t hourOffset) { _hrZoneOffset = hourOffset; }
+
   uint8_t getHour();
   uint8_t getMinutes();
   uint8_t getSeconds();
-  int getMillis() { return (millis() - _millisReference); }
-
-  void initMillisCounter(void (&isr)()) {
-    _rtc.writeSqwPinMode(DS3231_SquareWave1Hz);
-    pinMode(_sqwPin, INPUT_PULLUP);
-    attachInterrupt(_sqwPin, isr, FALLING);
-  }
-
-  void updateMillisReference() { _millisReference = millis(); }
-
   uint32_t getUnixTime();
+  /*! @warning To get milliseconds, updateMillisReference() must be called at 1Hz following the SQW output of the RTC */
+  int getMillis();
+  /*! @brief Get Unix+milliseconds timestamp */
+  PreciseTimeStamp getPreciseTime();
 
-  PreciseTimeStamp getPreciseTime() { PreciseTimeStamp rc = PreciseTimeStamp( getUnixTime(), getMillis()); return rc;  }
 
 protected:
 
@@ -85,6 +84,7 @@ int _sqwPin = -1;
 
 private:
   int _millisReference = 0;
+  int8_t _hrZoneOffset = 0;
 };
 
 #endif  // RTC_INTERFACE_H
